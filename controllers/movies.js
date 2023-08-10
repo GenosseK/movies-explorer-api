@@ -1,11 +1,40 @@
 const { ValidationError } = require('mongoose').Error;
 const BadRequestError = require('../errors/badRequestError');
+const NotFoundError = require('../errors/notFoundError');
+const ForbiddenError = require('../errors/forbiddenError');
 const Movie = require('../models/movie');
 
 const createMovie = (req, res, next) => {
-  const movieData = { ...req.body, owner: req.user._id };
+  const {
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+  } = req.body;
 
-  Movie.create(movieData)
+  // const movieData = { ...req.body, owner: req.user._id };
+
+  Movie.create({
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+    owner: req.user._id,
+  })
     .then((movie) => {
       res.status(201).send(movie);
     })
@@ -27,7 +56,21 @@ const getSavedMovies = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findOneAndDelete({ _id: req.params._id, owner: req.user._id })
+  const { _id } = req.user;
+  const movieId = req.params;
+
+  Movie.findById(movieId)
+    .then((movie) => {
+      if (!movie) {
+        throw new NotFoundError('Фильм не найден');
+      }
+
+      if (movie.owner.toString() !== _id) {
+        throw new ForbiddenError('Недостаточно прав для удаления фильма');
+      }
+
+      return movie.deleteOne();
+    })
     .then(() => {
       res.status(200).send({ message: 'Фильм удалён' });
     })
