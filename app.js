@@ -2,11 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
+const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const router = require('./routes');
 
-mongoose.connect('mongodb://127.0.0.1:27017/moviesdb', {
+mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -22,6 +23,8 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(helmet());
+
+app.use(rateLimiter);
 
 app.use(express.json());
 

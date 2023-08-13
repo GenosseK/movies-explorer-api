@@ -10,7 +10,7 @@ const NotFoundError = require('../errors/notFoundError');
 
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    name, email, password,
   } = req.body;
   bcrypt.hash(password, 10, (err, hashedPassword) => {
     if (err) {
@@ -19,13 +19,11 @@ const createUser = (req, res, next) => {
     }
 
     User.create({
-      name, about, avatar, email, password: hashedPassword,
+      name, email, password: hashedPassword,
     })
       .then((user) => {
         res.status(201).send({
           name: user.name,
-          about: user.about,
-          avatar: user.avatar,
           email: user.email,
         });
       })
