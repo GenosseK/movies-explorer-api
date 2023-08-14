@@ -1,34 +1,29 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const router = require('./routes');
+const { MONGO_DB, PORT } = require('./utils/constant');
 
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => {
-    console.log('Успешное подключение к MongoDB');
-  })
-  .catch((error) => {
-    console.error('Ошибка подключения к MongoDB:', error);
-  });
-
-const { PORT = 3000 } = process.env;
+mongoose.connect(MONGO_DB);
 
 const app = express();
 
-app.use(helmet());
+app.use(cors());
 
-app.use(rateLimiter);
+app.use(helmet());
 
 app.use(express.json());
 
 app.use(requestLogger);
+
+app.use(rateLimiter);
 
 app.use(router);
 

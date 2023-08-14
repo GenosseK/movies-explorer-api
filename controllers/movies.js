@@ -47,6 +47,7 @@ const createMovie = (req, res, next) => {
 
 const getSavedMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
+    .populate(['owner', '_id'])
     .then((movies) => {
       res.status(200).send(movies);
     })
@@ -55,9 +56,8 @@ const getSavedMovies = (req, res, next) => {
 
 const deleteMovie = (req, res, next) => {
   const { _id } = req.user;
-  const movieId = req.params;
 
-  Movie.findById(movieId)
+  Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Фильм не найден');
