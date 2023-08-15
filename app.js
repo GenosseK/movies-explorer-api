@@ -9,7 +9,7 @@ const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const router = require('./routes');
-const { MONGO_DB, PORT } = require('./utils/constant');
+const { MONGO_DB, PORT } = require('./utils/constants');
 
 mongoose.connect(MONGO_DB);
 
