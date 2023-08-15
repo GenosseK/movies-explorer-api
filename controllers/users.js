@@ -9,6 +9,16 @@ const UnauthorizedError = require('../errors/unauthorizedError');
 const ConflictError = require('../errors/conflictError');
 const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
+const {
+  MONGODB_CONFLICT_CODE,
+  conflictErrorMessage,
+  badRequestErrorMessage,
+  unauthorizedErrorMessage,
+  notFoundErrorMessage,
+  SUCCESS_CODE,
+  CREATED_CODE,
+  SECRET_KEY,
+} = require('../utils/constant');
 
 const createUser = (req, res, next) => {
   const {
@@ -24,16 +34,16 @@ const createUser = (req, res, next) => {
       name, email, password: hashedPassword,
     })
       .then((user) => {
-        res.status(201).send({
+        res.status(CREATED_CODE).send({
           name: user.name,
           email: user.email,
         });
       })
       .catch((error) => {
-        if (error.code === 11000) {
-          next(new ConflictError('Пользователь с таким email уже существует'));
+        if (error.code === MONGODB_CONFLICT_CODE) {
+          next(new ConflictError(conflictErrorMessage.createUser));
         } else if (error instanceof ValidationError) {
-          next(new BadRequestError('Переданные данные некорректны'));
+          next(new BadRequestError(badRequestErrorMessage.createUser));
         } else {
           next(error);
         }
@@ -46,16 +56,16 @@ const login = (req, res, next) => {
   User.findOne({ email })
     .select('+password')
     .orFail(() => {
-      throw new UnauthorizedError('Неправильные почта или пароль');
+      throw new UnauthorizedError(unauthorizedErrorMessage.login);
     })
     .then((user) => {
       bcrypt.compare(password, user.password)
         .then((validUser) => {
           if (validUser) {
-            const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
+            const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : SECRET_KEY, { expiresIn: '7d' });
             res.send({ token });
           } else {
-            throw new UnauthorizedError('Неправильные почта или пароль');
+            throw new UnauthorizedError(unauthorizedErrorMessage.login);
           }
         })
         .catch(next);
@@ -68,10 +78,10 @@ const getUserInfo = (req, res, next) => {
 
   User.findById(userId)
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найдет');
+      throw new NotFoundError(notFoundErrorMessage.notFoundUser);
     })
     .then((user) => {
-      res.status(200).send(user);
+      res.status(SUCCESS_CODE).send(user);
     })
     .catch((error) => {
       next(error);
@@ -84,14 +94,14 @@ const updateUser = (req, res, next) => {
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
+      throw new NotFoundError(notFoundErrorMessage.notFoundUser);
     })
     .then((user) => {
-      res.status(200).send(user);
+      res.status(SUCCESS_CODE).send(user);
     })
     .catch((error) => {
       if (error instanceof ValidationError) {
-        next(new BadRequestError('Переданные данные некорректны'));
+        next(new BadRequestError(badRequestErrorMessage.updateUser));
       } else {
         next(error);
       }
