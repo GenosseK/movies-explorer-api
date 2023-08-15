@@ -9,7 +9,7 @@ const {
   SUCCESS_CODE,
   notFoundErrorMessage,
   forbiddenErrorMessage,
-} = require('../utils/constant');
+} = require('../utils/constants');
 
 const createMovie = (req, res, next) => {
   const {

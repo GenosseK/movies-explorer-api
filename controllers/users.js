@@ -18,7 +18,7 @@ const {
   SUCCESS_CODE,
   CREATED_CODE,
   SECRET_KEY,
-} = require('../utils/constant');
+} = require('../utils/constants');
 
 const createUser = (req, res, next) => {
   const {
