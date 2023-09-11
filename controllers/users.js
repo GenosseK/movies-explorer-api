@@ -90,9 +90,9 @@ const getUserInfo = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const { _id } = req.user;
-  const { name, about } = req.body;
+  const { name, email } = req.body;
 
-  User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(_id, { name, email }, { new: true, runValidators: true })
     .orFail(() => {
       throw new NotFoundError(notFoundErrorMessage.notFoundUser);
     })
