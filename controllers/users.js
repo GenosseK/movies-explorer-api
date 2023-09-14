@@ -100,7 +100,9 @@ const updateUser = (req, res, next) => {
       res.status(SUCCESS_CODE).send(user);
     })
     .catch((error) => {
-      if (error instanceof ValidationError) {
+      if (error.code === MONGODB_CONFLICT_CODE) {
+        next(new ConflictError(conflictErrorMessage.createUser));
+      } else if (error instanceof ValidationError) {
         next(new BadRequestError(badRequestErrorMessage.updateUser));
       } else {
         next(error);
