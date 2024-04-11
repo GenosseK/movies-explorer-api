@@ -1,4 +1,4 @@
-# Backend приложения проекта Movies Explorer
+# Backend веб-приложения Movies Explorer
 
 _***Проект представляет из себя API для проекта:***_  Movies Explorer
 
